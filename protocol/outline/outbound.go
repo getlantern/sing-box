@@ -35,7 +35,7 @@ type Outbound struct {
 
 // RegisterOutbound registers the outline outbound to the registry
 func RegisterOutbound(registry *outbound.Registry) {
-	outbound.Register[option.OutboundOutlineOptions](registry, C.TypeOutline, NewOutbound)
+	outbound.Register(registry, C.TypeOutline, NewOutbound)
 }
 
 // NewOutbound creates a proxyless outbond that uses the proxyless transport
@@ -70,7 +70,7 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 	if err != nil {
 		return nil, err
 	}
-	outbound := &Outbound{
+	return &Outbound{
 		Adapter:     outbound.NewAdapterWithDialerOptions(C.TypeOutline, tag, []string{network.NetworkTCP}, options.DialerOptions),
 		logger:      log,
 		dialerMutex: &sync.Mutex{},
@@ -79,36 +79,30 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 		// outbound initialization because there wouldn't be a tunnel to communicate.
 		// So for fixing this issue, the dialer must be created during the DialContext call.
 		createDialer: sync.OnceValues(func() (transport.StreamDialer, error) {
-			dialer, err := strategyFinder.NewDialer(ctx, options.Domains, yamlOptions)
-			if err != nil {
-				return nil, err
-			}
-			return dialer, nil
+			return strategyFinder.NewDialer(ctx, options.Domains, yamlOptions)
 		}),
-	}
-
-	return outbound, nil
+	}, nil
 }
 
 // DialContext extracts the metadata domain, add the destination to the context
 // and use the proxyless dialer for sending the request
 func (o *Outbound) DialContext(ctx context.Context, network string, destination metadata.Socksaddr) (net.Conn, error) {
 	o.dialerMutex.Lock()
+	defer o.dialerMutex.Unlock()
 	if o.dialer == nil {
-		dialer, err := o.createDialer()
+		d, err := o.createDialer()
 		if err != nil {
 			o.dialerMutex.Unlock()
 			return nil, err
 		}
-		o.dialer = dialer
+		o.dialer = d
 	}
-	o.dialerMutex.Unlock()
 
-	ctx, metadata := adapter.ExtendContext(ctx)
-	metadata.Outbound = o.Tag()
-	metadata.Destination = destination
+	ctx, md := adapter.ExtendContext(ctx)
+	md.Outbound = o.Tag()
+	md.Destination = destination
 
-	return o.dialer.DialStream(ctx, fmt.Sprintf("%s:%d", metadata.Domain, destination.Port))
+	return o.dialer.DialStream(ctx, fmt.Sprintf("%s:%d", md.Domain, destination.Port))
 }
 
 // ListenPacket isn't implemented
