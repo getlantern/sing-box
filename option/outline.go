@@ -1,7 +1,5 @@
 package option
 
-import "time"
-
 // OutboundOutlineOptions set the outbound options used by the outline-sdk
 // smart dialer. You can find more details about the parameters by looking
 // through the implementation: https://github.com/Jigsaw-Code/outline-sdk/blob/v0.0.18/x/smart/stream_dialer.go#L65-L100
@@ -10,7 +8,7 @@ type OutboundOutlineOptions struct {
 	DialerOptions
 	DNSResolvers []DNSEntryConfig `json:"dns,omitempty" yaml:"dns,omitempty"`
 	TLS          []string         `json:"tls,omitempty" yaml:"tls,omitempty"`
-	TestTimeout  *time.Duration   `json:"test_timeout" yaml:"-"`
+	TestTimeout  string           `json:"test_timeout" yaml:"-"`
 	Domains      []string         `json:"domains" yaml:"-"`
 }
 

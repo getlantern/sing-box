@@ -46,9 +46,12 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 		return nil, err
 	}
 
-	if options.TestTimeout == nil {
-		timeout := 10 * time.Second
-		options.TestTimeout = &timeout
+	if options.TestTimeout == "" {
+		options.TestTimeout = "0s"
+	}
+	timeout, err := time.ParseDuration(options.TestTimeout)
+	if err != nil {
+		return nil, err
 	}
 
 	outboundStreamDialer := &outboundStreamDialer{
@@ -57,7 +60,7 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 	}
 
 	strategyFinder := &smart.StrategyFinder{
-		TestTimeout:  *options.TestTimeout,
+		TestTimeout:  timeout,
 		LogWriter:    &logWriter{log},
 		StreamDialer: outboundStreamDialer,
 		PacketDialer: outboundStreamDialer,
