@@ -88,7 +88,6 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 // and use the proxyless dialer for sending the request
 func (o *Outbound) DialContext(ctx context.Context, network string, destination metadata.Socksaddr) (net.Conn, error) {
 	o.dialerMutex.Lock()
-	defer o.dialerMutex.Unlock()
 	if o.dialer == nil {
 		d, err := o.createDialer()
 		if err != nil {
@@ -97,6 +96,7 @@ func (o *Outbound) DialContext(ctx context.Context, network string, destination 
 		}
 		o.dialer = d
 	}
+	o.dialerMutex.Unlock()
 
 	ctx, md := adapter.ExtendContext(ctx)
 	md.Outbound = o.Tag()
