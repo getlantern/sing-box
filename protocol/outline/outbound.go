@@ -41,9 +41,14 @@ func RegisterOutbound(registry *outbound.Registry) {
 // NewOutbound creates a proxyless outbond that uses the proxyless transport
 // for dialing
 func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogger, tag string, options option.OutboundOutlineOptions) (adapter.Outbound, error) {
-	outboundDialer, err := dialer.New(ctx, options.DialerOptions)
+	sDialer, err := dialer.New(ctx, options.DialerOptions)
 	if err != nil {
 		return nil, err
+	}
+
+	outboundSD := &outboundDialer{
+		dialer: sDialer,
+		logger: log,
 	}
 
 	if options.TestTimeout == "" {
@@ -54,16 +59,11 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 		return nil, err
 	}
 
-	outboundStreamDialer := &outboundStreamDialer{
-		dialer: outboundDialer,
-		logger: log,
-	}
-
 	strategyFinder := &smart.StrategyFinder{
 		TestTimeout:  timeout,
 		LogWriter:    &logWriter{log},
-		StreamDialer: outboundStreamDialer,
-		PacketDialer: outboundStreamDialer,
+		StreamDialer: outboundSD,
+		PacketDialer: outboundSD,
 	}
 
 	yamlOptions, err := yaml.Marshal(options)
@@ -118,12 +118,12 @@ func (o *Outbound) ListenPacket(ctx context.Context, destination metadata.Socksa
 
 // wrapper around sing-box's network.Dialer to implement streamDialer interface to pass to a
 // stream dialer as innerSD
-type outboundStreamDialer struct {
+type outboundDialer struct {
 	dialer network.Dialer
 	logger log.ContextLogger
 }
 
-func (s *outboundStreamDialer) DialStream(ctx context.Context, addr string) (transport.StreamConn, error) {
+func (s *outboundDialer) DialStream(ctx context.Context, addr string) (transport.StreamConn, error) {
 	destination := metadata.ParseSocksaddr(addr)
 	conn, err := s.dialer.DialContext(ctx, network.NetworkTCP, destination)
 	if err != nil {
@@ -132,7 +132,7 @@ func (s *outboundStreamDialer) DialStream(ctx context.Context, addr string) (tra
 	return conn.(*net.TCPConn), nil
 }
 
-func (s *outboundStreamDialer) DialPacket(ctx context.Context, addr string) (net.Conn, error) {
+func (s *outboundDialer) DialPacket(ctx context.Context, addr string) (net.Conn, error) {
 	destination := metadata.ParseSocksaddr(addr)
 	conn, err := s.dialer.ListenPacket(ctx, destination)
 	if err != nil {
