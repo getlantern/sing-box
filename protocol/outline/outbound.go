@@ -57,9 +57,8 @@ func NewOutbound(ctx context.Context, router adapter.Router, log log.ContextLogg
 	}
 
 	strategyFinder := &smart.StrategyFinder{
-		TestTimeout: *options.TestTimeout,
-		// TODO: define log writer
-		LogWriter:    os.Stdout,
+		TestTimeout:  *options.TestTimeout,
+		LogWriter:    &logWriter{log},
 		StreamDialer: outboundStreamDialer,
 		PacketDialer: outboundStreamDialer,
 	}
@@ -136,4 +135,15 @@ func (s *outboundStreamDialer) DialPacket(ctx context.Context, addr string) (net
 		return nil, err
 	}
 	return conn.(*net.UDPConn), nil
+}
+
+type logWriter struct {
+	logger log.ContextLogger
+}
+
+func (w *logWriter) Write(p []byte) (int, error) {
+	if w.logger != nil {
+		w.logger.Debug(string(p))
+	}
+	return len(p), nil
 }
