@@ -97,6 +97,7 @@ func (o *Outbound) DialContext(ctx context.Context, network string, destination 
 	if o.dialer == nil {
 		dialer, err := o.createDialer()
 		if err != nil {
+			o.dialerMutex.Unlock()
 			return nil, err
 		}
 		o.dialer = dialer
