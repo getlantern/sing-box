@@ -1,6 +1,10 @@
 module github.com/sagernet/sing-box
 
-go 1.20
+go 1.21
+
+toolchain go1.23.0
+
+replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.3-0.20250305211536-e22d41cf88bc
 
 require (
 	github.com/caddyserver/certmagic v0.20.0
@@ -63,6 +67,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/getlantern/algeneva v0.0.0-20250305200006-1c36d0e41447 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect

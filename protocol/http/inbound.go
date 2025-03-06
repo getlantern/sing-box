@@ -5,6 +5,12 @@ import (
 	"context"
 	"net"
 
+	"github.com/sagernet/sing/common"
+	"github.com/sagernet/sing/common/auth"
+	E "github.com/sagernet/sing/common/exceptions"
+	N "github.com/sagernet/sing/common/network"
+	"github.com/sagernet/sing/protocol/http"
+
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/adapter/inbound"
 	"github.com/sagernet/sing-box/common/listener"
@@ -13,11 +19,6 @@ import (
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/log"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing/common"
-	"github.com/sagernet/sing/common/auth"
-	E "github.com/sagernet/sing/common/exceptions"
-	N "github.com/sagernet/sing/common/network"
-	"github.com/sagernet/sing/protocol/http"
 )
 
 func RegisterInbound(registry *inbound.Registry) {
@@ -33,6 +34,7 @@ type Inbound struct {
 	listener      *listener.Listener
 	authenticator *auth.Authenticator
 	tlsConfig     tls.ServerConfig
+	useGeneva     bool
 }
 
 func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.HTTPMixedInboundOptions) (adapter.Inbound, error) {
@@ -41,6 +43,7 @@ func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLo
 		router:        uot.NewRouter(router, logger),
 		logger:        logger,
 		authenticator: auth.NewAuthenticator(options.Users),
+		useGeneva:     options.UseGeneva,
 	}
 	if options.TLS != nil {
 		tlsConfig, err := tls.NewServer(ctx, logger, common.PtrValueOrDefault(options.TLS))
@@ -48,6 +51,9 @@ func NewInbound(ctx context.Context, router adapter.Router, logger log.ContextLo
 			return nil, err
 		}
 		inbound.tlsConfig = tlsConfig
+		if options.UseGeneva {
+			logger.Warn("Geneva is not effective with TLS enabled, disable TLS to utilize Geneva")
+		}
 	}
 	inbound.listener = listener.New(listener.Options{
 		Context:           ctx,
@@ -90,7 +96,15 @@ func (h *Inbound) NewConnectionEx(ctx context.Context, conn net.Conn, metadata a
 			return
 		}
 		conn = tlsConn
+	} else if h.useGeneva {
+		err := http.HandleGenevaConnectionEx(ctx, conn, std_bufio.NewReader(conn), h.authenticator, adapter.NewUpstreamHandlerEx(metadata, h.newUserConnection, h.streamUserPacketConnection), metadata.Source, onClose)
+		if err != nil {
+			N.CloseOnHandshakeFailure(conn, onClose, err)
+			h.logger.ErrorContext(ctx, E.Cause(err, "process connection from ", metadata.Source))
+		}
+		return
 	}
+
 	err := http.HandleConnectionEx(ctx, conn, std_bufio.NewReader(conn), h.authenticator, adapter.NewUpstreamHandlerEx(metadata, h.newUserConnection, h.streamUserPacketConnection), metadata.Source, onClose)
 	if err != nil {
 		N.CloseOnHandshakeFailure(conn, onClose, err)

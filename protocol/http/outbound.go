@@ -5,6 +5,13 @@ import (
 	"net"
 	"os"
 
+	"github.com/getlantern/algeneva"
+	"github.com/sagernet/sing/common"
+	"github.com/sagernet/sing/common/logger"
+	M "github.com/sagernet/sing/common/metadata"
+	N "github.com/sagernet/sing/common/network"
+	sHTTP "github.com/sagernet/sing/protocol/http"
+
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/adapter/outbound"
 	"github.com/sagernet/sing-box/common/dialer"
@@ -12,11 +19,6 @@ import (
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/log"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing/common"
-	"github.com/sagernet/sing/common/logger"
-	M "github.com/sagernet/sing/common/metadata"
-	N "github.com/sagernet/sing/common/network"
-	sHTTP "github.com/sagernet/sing/protocol/http"
 )
 
 func RegisterOutbound(registry *outbound.Registry) {
@@ -38,16 +40,28 @@ func NewOutbound(ctx context.Context, router adapter.Router, logger log.ContextL
 	if err != nil {
 		return nil, err
 	}
+	var genevaStrategy *algeneva.HTTPStrategy
+	if options.GenevaHTTPOutboundOptions.Enabled {
+		if options.TLS != nil {
+			logger.Warn("Geneva is not effective with TLS enabled, disable TLS to utilize Geneva")
+		} else {
+			genevaStrategy, err = algeneva.NewHTTPStrategy(options.GenevaHTTPOutboundOptions.Strategy)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	return &Outbound{
 		Adapter: outbound.NewAdapterWithDialerOptions(C.TypeHTTP, tag, []string{N.NetworkTCP}, options.DialerOptions),
 		logger:  logger,
 		client: sHTTP.NewClient(sHTTP.Options{
-			Dialer:   detour,
-			Server:   options.ServerOptions.Build(),
-			Username: options.Username,
-			Password: options.Password,
-			Path:     options.Path,
-			Headers:  options.Headers.Build(),
+			Dialer:         detour,
+			Server:         options.ServerOptions.Build(),
+			Username:       options.Username,
+			Password:       options.Password,
+			Path:           options.Path,
+			Headers:        options.Headers.Build(),
+			GenevaStrategy: genevaStrategy,
 		}),
 	}, nil
 }
