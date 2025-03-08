@@ -8,6 +8,8 @@ require github.com/sagernet/sing-box v0.0.0
 
 replace github.com/sagernet/sing-box => ../
 
+// replace github.com/sagernet/sing => ../../sing
+
 replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.3-0.20250305211536-e22d41cf88bc
 
 require (
@@ -39,7 +41,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/getlantern/algeneva v0.0.0-20250305200006-1c36d0e41447 // indirect
+	github.com/getlantern/algeneva v0.0.0-20250307163401-1824e7b54f52 // indirect
 	github.com/go-chi/chi/v5 v5.2.1 // indirect
 	github.com/go-chi/render v1.0.3 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
@@ -48,6 +50,7 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
+	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect

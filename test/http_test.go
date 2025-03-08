@@ -84,15 +84,18 @@ func TestHTTPGenevaSelf(t *testing.T) {
 						Listen:     common.Ptr(badoption.Addr(netip.IPv4Unspecified())),
 						ListenPort: clientPort,
 					},
-					UseGeneva: true,
 				},
 			},
 			{
-				Type: C.TypeMixed,
+				Type: C.TypeHTTP,
 				Options: &option.HTTPMixedInboundOptions{
 					ListenOptions: option.ListenOptions{
 						Listen:     common.Ptr(badoption.Addr(netip.IPv4Unspecified())),
 						ListenPort: serverPort,
+					},
+					GenevaHTTPOptions: option.GenevaHTTPOptions{
+						Enabled: true,
+						OverWS:  true,
 					},
 				},
 			},
@@ -110,7 +113,10 @@ func TestHTTPGenevaSelf(t *testing.T) {
 						ServerPort: serverPort,
 					},
 					GenevaHTTPOutboundOptions: option.GenevaHTTPOutboundOptions{
-						Enabled:  true,
+						GenevaHTTPOptions: option.GenevaHTTPOptions{
+							Enabled: true,
+							OverWS:  true,
+						},
 						Strategy: "[HTTP:method:*]-insert{%0A:end:value:2}-|",
 					},
 				},
