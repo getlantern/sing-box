@@ -15,6 +15,12 @@ type HTTPMixedInboundOptions struct {
 	Users          []auth.User `json:"users,omitempty"`
 	SetSystemProxy bool        `json:"set_system_proxy,omitempty"`
 	InboundTLSOptionsContainer
+	GenevaHTTPOptions
+}
+
+type GenevaHTTPOptions struct {
+	Enabled bool `json:"enabled,omitempty"`
+	OverWS  bool `json:"over_ws,omitempty"`
 }
 
 type SOCKSOutboundOptions struct {
@@ -35,4 +41,10 @@ type HTTPOutboundOptions struct {
 	OutboundTLSOptionsContainer
 	Path    string               `json:"path,omitempty"`
 	Headers badoption.HTTPHeader `json:"headers,omitempty"`
+	GenevaHTTPOutboundOptions
+}
+
+type GenevaHTTPOutboundOptions struct {
+	GenevaHTTPOptions
+	Strategy string `json:"strategy,omitempty"`
 }

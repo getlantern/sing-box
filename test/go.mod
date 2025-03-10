@@ -8,12 +8,16 @@ require github.com/sagernet/sing-box v0.0.0
 
 replace github.com/sagernet/sing-box => ../
 
+// replace github.com/sagernet/sing => ../../sing
+
+replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.2-release
+
 require (
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/gofrs/uuid/v5 v5.3.0
 	github.com/sagernet/quic-go v0.49.0-beta.1
-	github.com/sagernet/sing v0.6.1
+	github.com/sagernet/sing v0.6.2
 	github.com/sagernet/sing-dns v0.4.0
 	github.com/sagernet/sing-quic v0.4.0
 	github.com/sagernet/sing-shadowsocks v0.2.7
@@ -40,6 +44,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/getlantern/algeneva v0.0.0-20250307163401-1824e7b54f52 // indirect
 	github.com/go-chi/chi/v5 v5.2.1 // indirect
 	github.com/go-chi/render v1.0.3 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
@@ -47,6 +52,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
+	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect

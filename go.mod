@@ -4,14 +4,18 @@ go 1.22
 
 toolchain go1.22.9
 
+replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.2-release
+
 require (
 	github.com/Jigsaw-Code/outline-sdk v0.0.18
 	github.com/Jigsaw-Code/outline-sdk/x v0.0.1
 	github.com/caddyserver/certmagic v0.20.0
 	github.com/cloudflare/circl v1.3.7
 	github.com/cretz/bine v0.2.0
+	github.com/getlantern/algeneva v0.0.0-20250307163401-1824e7b54f52
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/render v1.0.3
+	github.com/gobwas/ws v1.4.0
 	github.com/gofrs/uuid/v5 v5.3.0
 	github.com/insomniacslk/dhcp v0.0.0-20250109001534-8abf58130905
 	github.com/libdns/alidns v1.0.3
