@@ -144,3 +144,75 @@ func TestHTTPGenevaSelf(t *testing.T) {
 	})
 	testTCP(t, clientPort, testPort)
 }
+
+func TestHTTPGenevaNoWSSelf(t *testing.T) {
+	startInstance(t, option.Options{
+		Inbounds: []option.Inbound{
+			{
+				Type: C.TypeMixed,
+				Tag:  "mixed-in",
+				Options: &option.HTTPMixedInboundOptions{
+					ListenOptions: option.ListenOptions{
+						Listen:     common.Ptr(badoption.Addr(netip.IPv4Unspecified())),
+						ListenPort: clientPort,
+					},
+				},
+			},
+			{
+				Type: C.TypeHTTP,
+				Options: &option.HTTPMixedInboundOptions{
+					ListenOptions: option.ListenOptions{
+						Listen:     common.Ptr(badoption.Addr(netip.IPv4Unspecified())),
+						ListenPort: serverPort,
+					},
+					GenevaHTTPOptions: option.GenevaHTTPOptions{
+						Enabled: true,
+						OverWS:  false,
+					},
+				},
+			},
+		},
+		Outbounds: []option.Outbound{
+			{
+				Type: C.TypeDirect,
+			},
+			{
+				Type: C.TypeHTTP,
+				Tag:  "http-out",
+				Options: &option.HTTPOutboundOptions{
+					ServerOptions: option.ServerOptions{
+						Server:     "127.0.0.1",
+						ServerPort: serverPort,
+					},
+					GenevaHTTPOutboundOptions: option.GenevaHTTPOutboundOptions{
+						GenevaHTTPOptions: option.GenevaHTTPOptions{
+							Enabled: true,
+							OverWS:  false,
+						},
+						Strategy: "[HTTP:method:*]-insert{%0A:end:value:2}-|",
+					},
+				},
+			},
+		},
+		Route: &option.RouteOptions{
+			Rules: []option.Rule{
+				{
+					Type: C.RuleTypeDefault,
+					DefaultOptions: option.DefaultRule{
+						RawDefaultRule: option.RawDefaultRule{
+							Inbound: []string{"mixed-in"},
+						},
+						RuleAction: option.RuleAction{
+							Action: C.RuleActionTypeRoute,
+
+							RouteOptions: option.RouteActionOptions{
+								Outbound: "http-out",
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+	testTCP(t, clientPort, testPort)
+}
