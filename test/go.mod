@@ -10,7 +10,7 @@ replace github.com/sagernet/sing-box => ../
 
 // replace github.com/sagernet/sing => ../../sing
 
-replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.3-0.20250305211536-e22d41cf88bc
+replace github.com/sagernet/sing => github.com/getlantern/sing v0.6.2-release
 
 require (
 	github.com/docker/docker v27.3.1+incompatible
