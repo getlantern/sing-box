@@ -9,7 +9,7 @@ require (
 	github.com/caddyserver/certmagic v0.21.7
 	github.com/cloudflare/circl v1.6.0
 	github.com/cretz/bine v0.2.0
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/render v1.0.3
 	github.com/gofrs/uuid/v5 v5.3.1
 	github.com/insomniacslk/dhcp v0.0.0-20250109001534-8abf58130905
