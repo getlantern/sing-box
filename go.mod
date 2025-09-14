@@ -7,7 +7,7 @@ toolchain go1.24.0
 require (
 	github.com/anytls/sing-anytls v0.0.5
 	github.com/caddyserver/certmagic v0.21.7
-	github.com/cloudflare/circl v1.6.0
+	github.com/cloudflare/circl v1.6.1
 	github.com/cretz/bine v0.2.0
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/render v1.0.3
