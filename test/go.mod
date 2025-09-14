@@ -9,7 +9,7 @@ require github.com/sagernet/sing-box v0.0.0
 replace github.com/sagernet/sing-box => ../
 
 require (
-	github.com/docker/docker v27.3.1+incompatible
+	github.com/docker/docker v28.0.0+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/gofrs/uuid/v5 v5.3.1
 	github.com/sagernet/quic-go v0.49.0-beta.1
